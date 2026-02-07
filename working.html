@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Tracker - WORKING VERSION</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .app-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+        }
+        
+        .main-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .stars {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .stars i {
+            font-size: 24px;
+            color: #ffc107;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .stars i:hover {
+            transform: scale(1.2);
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+        }
+        
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .place-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s;
+        }
+        
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .place-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .place-title {
+            font-size: 1.5em;
+            color: #333;
+        }
+        
+        .place-country {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .place-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .place-rating {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .place-notes {
+            color: #495057;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        
+        .landmarks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .landmark-tag {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #495057;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #adb5bd;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-globe-americas"></i> Travel Tracker</h1>
+            <p>Track all the places you've visited around the world</p>
+        </header>
+        
+        <div class="app-layout">
+            <div class="sidebar">
+                <h2><i class="fas fa-plus-circle"></i> Add New Destination</h2>
+                <form id="travel-form">
+                    <div class="form-group">
+                        <label for="city">City/Location:</label>
+                        <input type="text" id="city" placeholder="e.g., Paris" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="country">Country:</label>
+                        <input type="text" id="country" placeholder="e.g., France" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Visit Date:</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="duration">Duration (days):</label>
+                        <input type="number" id="duration" value="3" min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rating (1-5):</label>
+                        <div class="stars" id="star-rating">
+                            <i class="far fa-star" data-rating="1"></i>
+                            <i class="far fa-star" data-rating="2"></i>
+                            <i class="far fa-star" data-rating="3"></i>
+                            <i class="far fa-star" data-rating="4"></i>
+                            <i class="far fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="rating" value="3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="landmarks">Landmarks (comma separated):</label>
+                        <input type="text" id="landmarks" placeholder="Eiffel Tower, Louvre, Notre Dame">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes:</label>
+                        <textarea id="notes" rows="3" placeholder="Your memories and experiences..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-map-marker-alt"></i> Add Destination
+                    </button>
+                </form>
+            </div>
+            
+            <div class="main-content">
+                <h2><i class="fas fa-passport"></i> Your Destinations</h2>
+                
+                <div class="controls">
+                    <input type="text" id="search" placeholder="Search places..." style="width: 100%; padding: 12px; margin-bottom: 20px;">
+                </div>
+                
+                <div id="destinations-container">
+                    <div class="empty-state">
+                        <i class="fas fa-passport"></i>
+                        <h3>No destinations yet</h3>
+                        <p>Add your first travel destination to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === SIMPLE GUARANTEED WORKING VERSION ===
+        console.log("=== TRAVEL TRACKER LOADED ===");
+        
+        // Array to store destinations
+        let destinations = [];
+        
+        // DOM Elements
+        let travelForm;
+        let destinationsContainer;
+        
+        // Initialize when page loads
+        window.onload = function() {
+            console.log("Page loaded - initializing...");
+            
+            // Get DOM elements
+            travelForm = document.getElementById('travel-form');
+            destinationsContainer = document.getElementById('destinations-container');
+            
+            if (!travelForm) {
+                console.error("ERROR: Form element not found!");
+                alert("Error: Form not found. Please check the HTML.");
+                return;
+            }
+            
+            console.log("Form found:", travelForm);
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            // Setup star rating
+            setupStarRating();
+            
+            // Setup form submit
+            travelForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log("Form submitted!");
+                addDestination();
+            });
+            
+            // Setup search
+            document.getElementById('search').addEventListener('input', function(e) {
+                filterDestinations(e.target.value);
+            });
+            
+            // Load any saved data
+            loadDestinations();
+            
+            console.log("Initialization complete!");
+        };
+        
+        function setupStarRating() {
+            const stars = document.querySelectorAll('#star-rating i');
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    setStarRating(rating);
+                });
+            });
+            setStarRating(3); // Default to 3 stars
+        }
+        
+        function setStarRating(rating) {
+            console.log("Setting rating to:", rating);
+            document.getElementById('rating').value = rating;
+            const stars = document.querySelectorAll('#star-rating i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.className = 'fas fa-star';
+                } else {
+                    star.className = 'far fa-star';
+                }
+            });
+        }
+        
+        function addDestination() {
+            console.log("=== ADDING DESTINATION ===");
+            
+            // Get form values
+            const city = document.getElementById('city').value.trim();
+            const country = document.getElementById('country').value.trim();
+            const date = document.getElementById('date').value;
+            const duration = parseInt(document.getElementById('duration').value) || 3;
+            const rating = parseInt(document.getElementById('rating').value) || 3;
+            const landmarks = document.getElementById('landmarks').value
+                .split(',')
+                .map(l => l.trim())
+                .filter(l => l);
+            const notes = document.getElementById('notes').value.trim();
+            
+            console.log("Form values:", {
+                city, country, date, duration, rating, landmarks, notes
+            });
+            
+            // Validation
+            if (!city || !country || !date) {
+                alert("Please fill in City, Country, and Date!");
+                return;
+            }
+            
+            // Create destination object
+            const destination = {
+                id: Date.now(), // Unique ID
+                city: city,
+                country: country,
+                date: date,
+                duration: duration,
+                rating: rating,
+                landmarks: landmarks,
+                notes: notes,
+                added: new Date().toISOString()
+            };
+            
+            // Add to array
+            destinations.push(destination);
+            console.log("Destination added:", destination);
+            
+            // Save to localStorage
+            saveDestinations();
+            
+            // Reset form
+            travelForm.reset();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            setStarRating(3);
+            
+            // Update display
+            displayDestinations();
+            
+            // Show success message
+            alert(`✅ Successfully added ${city}, ${country}!`);
+        }
+        
+        function displayDestinations(dests = destinations) {
+            console.log("Displaying destinations:", dests.length);
+            
+            if (dests.length === 0) {
+                destinationsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-passport"></i>
+                        <h3>No destinations found</h3>
+                        <p>Try adding a destination or changing your search</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Generate HTML for each destination
+            const destinationsHTML = dests.map(dest => `
+                <div class="place-card" data-id="${dest.id}">
+                    <div class="place-header">
+                        <div>
+                            <h3 class="place-title">${dest.city}</h3>
+                            <p class="place-country">${dest.country}</p>
+                        </div>
+                        <div class="place-rating">
+                            ${'★'.repeat(dest.rating)}${'☆'.repeat(5 - dest.rating)}
+                        </div>
+                    </div>
+                    
+                    <div class="place-meta">
+                        <div>
+                            <i class="far fa-calendar"></i> 
+                            ${new Date(dest.date).toLocaleDateString('en-US', { 
+                                month: 'long', 
+                                year: 'numeric' 
+                            })}
+                        </div>
+                        <div>
+                            <i class="fas fa-clock"></i> ${dest.duration} days
+                        </div>
+                    </div>
+                    
+                    ${dest.notes ? `
+                        <p class="place-notes">${dest.notes}</p>
+                    ` : ''}
+                    
+                    ${dest.landmarks.length > 0 ? `
+                        <div class="landmarks">
+                            ${dest.landmarks.map(landmark => 
+                                `<span class="landmark-tag">${landmark}</span>`
+                            ).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+            
+            destinationsContainer.innerHTML = `
+                <div class="places-grid">
+                    ${destinationsHTML}
+                </div>
+            `;
+            
+            console.log("Destinations displayed successfully");
+        }
+        
+        function filterDestinations(searchTerm) {
+            console.log("Filtering with search term:", searchTerm);
+            
+            if (!searchTerm.trim()) {
+                displayDestinations();
+                return;
+            }
+            
+            const term = searchTerm.toLowerCase();
+            const filtered = destinations.filter(dest => 
+                dest.city.toLowerCase().includes(term) ||
+                dest.country.toLowerCase().includes(term) ||
+                dest.notes.toLowerCase().includes(term) ||
+                dest.landmarks.some(l => l.toLowerCase().includes(term))
+            );
+            
+            displayDestinations(filtered);
+        }
+        
+        function saveDestinations() {
+            try {
+                localStorage.setItem('travelDestinations', JSON.stringify(destinations));
+                console.log("Destinations saved to localStorage");
+            } catch (e) {
+                console.warn("Could not save to localStorage:", e);
+            }
+        }
+        
+        function loadDestinations() {
+            try {
+                const saved = localStorage.getItem('travelDestinations');
+                if (saved) {
+                    destinations = JSON.parse(saved);
+                    console.log("Loaded destinations from localStorage:", destinations.length);
+                    displayDestinations();
+                }
+            } catch (e) {
+                console.warn("Could not load from localStorage:", e);
+            }
+        }
+        
+        // Make functions available globally for debugging
+        window.debug = {
+            destinations: () => destinations,
+            addTestDestination: () => {
+                const testDest = {
+                    id: Date.now(),
+                    city: "Paris",
+                    country: "France",
+                    date: new Date().toISOString().split('T')[0],
+                    duration: 5,
+                    rating: 5,
+                    landmarks: ["Eiffel Tower", "Louvre"],
+                    notes: "Beautiful city with amazing food!",
+                    added: new Date().toISOString()
+                };
+                destinations.push(testDest);
+                displayDestinations();
+                console.log("Test destination added:", testDest);
+            }
+        };
+    </script>
+</body>
+</html>
