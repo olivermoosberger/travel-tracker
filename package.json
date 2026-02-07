@@ -1,0 +1,16 @@
+{
+  "name": "travel-tracker",
+  "version": "1.0.0",
+  "description": "A web application to track all the places you've visited",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=3000",
+    "test": "echo \"Open tests/place.test.html in browser\" && exit 0"
+  },
+  "keywords": ["travel", "tracker", "destinations", "javascript"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
